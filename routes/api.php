@@ -5,6 +5,7 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\CoordinacionController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\ImportacionAsistenciasController;
 use App\Http\Controllers\RetiroController;
 use App\Http\Middleware\ContextoBartimeo;
 use App\Http\Middleware\SesionCoordinacion;
@@ -30,6 +31,7 @@ Route::middleware(ContextoBartimeo::class)->group(function () {
     }
 
     Route::middleware(SesionCoordinacion::class)->group(function () {
+        Route::post('asistencias/importar-historico', ImportacionAsistenciasController::class);
         Route::get('coordinacion/verificar', [CoordinacionController::class, 'verificar']);
         Route::post('coordinacion/logout', [CoordinacionController::class, 'logout']);
         Route::post('coordinacion/enlaces', [CoordinacionController::class, 'enlace']);

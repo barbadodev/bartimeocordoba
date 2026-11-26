@@ -967,7 +967,7 @@ export default function PanelAsistencias({ token, refreshKey }) {
                             textOverflow: 'ellipsis'
                           }} title={m.name}>
                             {m.name}
-                            {m.motivoExcepcion && <small title={m.motivoExcepcion}> · Excepción</small>}
+                            {m.motivoExcepcion && <small title={m.motivoExcepcion}> · Excepción</small>}{m.historicoImportado && <small aria-label="Registro importado"> · Registro importado</small>}
                           </span>
 
                           <div style={{ display: 'flex', gap: '4px', marginTop: '3px', flexWrap: 'wrap' }}>
@@ -1163,6 +1163,11 @@ export default function PanelAsistencias({ token, refreshKey }) {
 
                           <td style={{ textAlign: 'center', padding: '12px 10px' }}>
                             <div style={{ display: 'inline-flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                              {m.historicoImportado && (
+                                <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#F1EAF0', color: '#5C1824', fontWeight: 600 }}>
+                                  Registro importado
+                                </span>
+                              )}
                               {m.caminante ? (
                                 <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#F4E8D6', color: '#8A5D18', fontWeight: 600 }}>
                                   Caminante
