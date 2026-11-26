@@ -34,3 +34,5 @@ Thumbs.db
 /opencode.json
 /Copia asistencias para Barbado.xlsx
 /bartimeocordoba/
+# La configuración local del retiro contiene contactos y no debe subirse a Git.
+/resources/datos/retiro.json

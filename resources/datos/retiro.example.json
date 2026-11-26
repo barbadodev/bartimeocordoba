@@ -1,0 +1,27 @@
+{
+  "edicion": "VII",
+  "email": "",
+  "coordinadoresJovenes": [],
+  "coordinadoresAdultos": [],
+  "caminantes": {
+    "titulo": "",
+    "fechas": "",
+    "horarioComienzo": "",
+    "horarioClausura": "",
+    "lugar": "",
+    "direccion": "",
+    "precio": "",
+    "formaPago": "",
+    "fechaLimite": ""
+  },
+  "servidores": {
+    "titulo": "",
+    "fechas": "",
+    "horarioComienzo": "",
+    "horarioClausura": "",
+    "lugar": "",
+    "direccion": "",
+    "precioPago": "",
+    "fechaLimite": ""
+  }
+}

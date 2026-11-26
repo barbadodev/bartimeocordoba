@@ -81,7 +81,11 @@ Después, prepara la nueva edición con tiempo. Como mínimo hay que revisar:
 - La invitación de servidores y su fecha de caducidad.
 - Los formularios de caminantes y servidores, el acceso al panel y el guardado de asistencias.
 
-Los datos públicos del retiro y los contactos se leen desde `resources/datos/retiro.json`. El código tiene además una edición pública predeterminada (`Retiro::PUBLICA`). Crear una edición desde el panel no cambia por sí solo ese archivo ni esa edición predeterminada: quien mantenga el código debe preparar y publicar esos cambios. No copies teléfonos ni otros datos personales a este README ni a mensajes públicos.
+La configuración del retiro vive en `resources/datos/retiro.json`, un archivo local ignorado por Git. El repositorio incluye `resources/datos/retiro.example.json` como plantilla sin nombres ni teléfonos. Si una persona nueva clona el proyecto, quien tenga los datos debe entregárselos por un canal seguro y ayudarle a crear el archivo real a partir de esa plantilla. No sobrescribas una copia real ya instalada.
+
+**Ojo:** esta separación evita subir los datos reales al repositorio, pero no los oculta a quienes visitan la web. La aplicación incluye esta configuración en los formularios y en la respuesta pública de información del retiro para mostrar fechas y contactos. Pon ahí solo datos que coordinación quiera enseñar al público; cualquier dato que deba ser exclusivamente interno requiere un cambio adicional de la aplicación.
+
+El código tiene además una edición pública predeterminada (`Retiro::PUBLICA`). Crear una edición desde el panel no cambia por sí solo la configuración ni esa edición predeterminada: quien mantenga el código debe preparar y publicar esos cambios. No copies teléfonos ni otros datos personales a este README ni a mensajes públicos.
 
 Haz una copia de seguridad antes de tocar la base de datos o publicar una edición nueva. Tras publicar, comprueba los dos formularios, el enlace de invitación, la entrada al panel y que una marca de asistencia se guarda y sigue ahí al recargar.
 
@@ -91,8 +95,9 @@ La aplicación está hecha con Laravel 13, PHP 8.5, React y PostgreSQL. Para tra
 
 En una copia local del proyecto:
 
-1. Copia `.env.example` a `.env` y completa los datos de **una base de pruebas**, no los de producción.
-2. Instala dependencias y prepara la base:
+1. Si todavía no tienes la configuración real, copia `resources/datos/retiro.example.json` como `resources/datos/retiro.json` y completa todos los datos de la nueva edición. Ese archivo está excluido de Git. No uses la plantilla vacía para compilar ni publicar.
+2. Copia `.env.example` a `.env` y completa los datos de **una base de pruebas**, no los de producción.
+3. Instala dependencias y prepara la base:
 
    ```powershell
    composer install
@@ -102,7 +107,7 @@ En una copia local del proyecto:
    npm.cmd run build
    ```
 
-3. Arranca la web:
+4. Arranca la web:
 
    ```powershell
    php artisan serve --host=127.0.0.1 --port=8000
@@ -110,7 +115,7 @@ En una copia local del proyecto:
 
    Entra en `http://127.0.0.1:8000`. No subas el archivo `.env`: contiene claves de la instalación local.
 
-El proyecto incluye `scripts/preparar-sftp.ps1` para preparar los archivos de una publicación por SFTP. El paquete se genera dentro de `storage/app/private`; la carpeta privada de Laravel debe quedar fuera de `httpdocs`. Antes de publicar, revisa que el paquete corresponda a la versión que quieres subir y guarda una copia recuperable de la web y de la base de datos. Para migrar la base de producción o importar datos históricos, coordínalo con la persona responsable del alojamiento y haz primero una copia de seguridad.
+El proyecto incluye `scripts/preparar-sftp.ps1` para preparar los archivos de una publicación por SFTP. Antes de generar el paquete, el script comprueba que exista la configuración real y que estén completos los datos necesarios de caminantes y servidores; el paquete copia ese archivo local. El paquete se genera dentro de `storage/app/private`; la carpeta privada de Laravel debe quedar fuera de `httpdocs`. Antes de publicar, revisa que el paquete corresponda a la versión que quieres subir y guarda una copia recuperable de la web y de la base de datos. Para migrar la base de producción o importar datos históricos, coordínalo con la persona responsable del alojamiento y haz primero una copia de seguridad.
 
 ## Cuidemos los datos
 
