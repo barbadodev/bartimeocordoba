@@ -1,12 +1,98 @@
 # Bartimeo Córdoba
 
-Aplicación única de Laravel 13, PHP 8.5 y PostgreSQL. Laravel sirve la interfaz React compilada y las rutas de la API en el mismo dominio. Las sesiones de coordinación se guardan en PostgreSQL en `sesiones_coordinacion`, con la huella del token, su parroquia y su caducidad. El gestor de sesiones de Laravel también usa PostgreSQL.
+![Logo de Bartimeo](public/logo-bartimeo.png)
 
-## Arrancar en local
+## Guía de uso y relevo
 
-1. Crea una base PostgreSQL y un usuario con permisos sobre su esquema. Instala PHP 8.5 con `pdo_pgsql`, Composer y Node.js.
-2. Copia `.env.example` a `.env` y completa la conexión.
-3. Ejecuta estos comandos desde esta carpeta:
+Esta guía es para el equipo que usa la aplicación y para quien se encargue de ella el año que viene. La idea es que cualquiera pueda entender lo básico sin tener que preguntarle a la persona que la programó.
+
+## ¿Para qué sirve?
+
+La aplicación reúne en un solo sitio las inscripciones de caminantes y servidores, los datos del retiro y la asistencia a las reuniones. El público rellena los formularios y el equipo de coordinación consulta y gestiona la información desde un panel privado.
+
+Las inscripciones y las asistencias se guardan en la base de datos del servidor. Descargar un CSV sirve para trabajar con una copia en Excel, pero esa copia no sustituye a los datos guardados en la aplicación.
+
+## Entrar en cada parte
+
+Las direcciones se abren en el dominio de Bartimeo. Las rutas de Cristo Rey son:
+
+| Parte | Dirección | Quién la usa |
+| --- | --- | --- |
+| Portada | `/` | Todo el mundo |
+| Inscripción de caminantes | `/cristorey/caminantes` | Familias y caminantes |
+| Inscripción de servidores | `/cristorey/servidores` | Personas invitadas por coordinación |
+| Panel de coordinación | `/cristorey/coordinacion` | Coordinadores con acceso privado |
+
+El panel de Cristo Rey se abre con un **enlace privado de coordinación**. No hay que escribir una contraseña en la página. Pide el enlace a la persona que administre los accesos y no lo reenvíes a grupos públicos: quien lo tenga puede entrar a datos personales.
+
+La sesión caduca. Si el panel te devuelve a la pantalla de acceso, vuelve a abrir el enlace privado o pide uno nuevo a la administración.
+
+## Lo de cada día
+
+### Inscripciones
+
+En el panel puedes cambiar entre **Inscripciones de servidores** e **Inscripciones de caminantes**. Usa el buscador y los filtros para encontrar una ficha; al abrirla podrás revisar sus datos. El botón **Actualizar** vuelve a cargar la información del servidor.
+
+Para descargar una hoja, usa **Exportar a Excel**. Se descarga un CSV que Excel puede abrir. Esa hoja contiene datos personales: guárdala solo donde haga falta, compártela únicamente con quien deba verla y bórrala cuando ya no sea necesaria.
+
+Editar una ficha actualiza el registro de la aplicación. Borrar una inscripción la elimina de forma permanente; antes de confirmar, comprueba que has elegido a la persona correcta.
+
+### Invitar a servidores
+
+En **Configuración** está el bloque **Enlace de inscripción de servidores**:
+
+1. Elige cuántos días estará activo, entre 1 y 30.
+2. Pulsa **Generar enlace** y copia el enlace que aparece.
+3. Compártelo solo con el grupo de servidores al que va dirigido.
+
+Si ya había una invitación activa y generas otra, la anterior deja de funcionar. También puedes desactivarla desde ese mismo bloque. El formulario de caminantes, en cambio, es público.
+
+### Asistencias
+
+En **Asistencias** hay tres pestañas:
+
+- **Reuniones**: añade la fecha de cada reunión. Si todavía no hay reuniones, empieza por aquí.
+- **Toma de asistencia**: elige la reunión y pulsa sobre cada persona para recorrer los estados: sin marcar, presente, incidencia, ausente y de nuevo sin marcar. También puedes marcar como presentes a todas las personas que se muestran en ese momento; revisa los filtros antes de hacerlo.
+- **Participantes**: consulta, busca o gestiona la lista usada para pasar asistencia. Aquí se pueden añadir casos excepcionales, como alguien que asistió sin estar inscrito.
+
+La pantalla indica si los cambios están **Guardados** o si hay un problema de conexión. Espera a que indique que se guardaron antes de cerrar la página. Si aparece un error de conexión, pulsa actualizar y comprueba los datos antes de volver a marcar nada.
+
+**Exportar Matriz** descarga el historial de reuniones y asistencias en CSV. Borrar una reunión también borra las marcas de asistencia asociadas; la aplicación avisa antes de hacerlo. Borrar a un participante elimina además su historial.
+
+### Configuración
+
+En esta sección se pueden ajustar el límite de plazas de caminantes, los valores disponibles en algunos desplegables y las ediciones del retiro. Los cambios afectan a la edición que esté seleccionada en el panel.
+
+La opción **Crear una edición** prepara una edición nueva y sus catálogos iniciales. Por sí sola **no cambia** las fechas, el lugar, los precios, los teléfonos de contacto ni el formulario público para el año siguiente. Para abrir una nueva convocatoria hay que coordinar esos cambios con la persona técnica que mantenga el proyecto.
+
+## Para quien se encargue el año que viene
+
+Antes de abrir la siguiente convocatoria, deja claro quién tiene acceso a estas cuatro cosas:
+
+1. El dominio y la cuenta del alojamiento donde está publicada la web.
+2. El acceso de administración de la base de datos y las copias de seguridad.
+3. El repositorio privado de código: [barbadodev/bartimeocordoba](https://github.com/barbadodev/bartimeocordoba). La nueva persona debe tener acceso antes de necesitar hacer cambios.
+4. El enlace privado de coordinación y quién puede generar o renovar los accesos.
+
+Después, prepara la nueva edición con tiempo. Como mínimo hay que revisar:
+
+- Las fechas, el lugar, los horarios, los precios, los teléfonos y el correo de contacto.
+- Los límites de plazas y las opciones de tallas y servicios.
+- La invitación de servidores y su fecha de caducidad.
+- Los formularios de caminantes y servidores, el acceso al panel y el guardado de asistencias.
+
+Los datos públicos del retiro y los contactos se leen desde `resources/datos/retiro.json`. El código tiene además una edición pública predeterminada (`Retiro::PUBLICA`). Crear una edición desde el panel no cambia por sí solo ese archivo ni esa edición predeterminada: quien mantenga el código debe preparar y publicar esos cambios. No copies teléfonos ni otros datos personales a este README ni a mensajes públicos.
+
+Haz una copia de seguridad antes de tocar la base de datos o publicar una edición nueva. Tras publicar, comprueba los dos formularios, el enlace de invitación, la entrada al panel y que una marca de asistencia se guarda y sigue ahí al recargar.
+
+## Si hay que tocar o publicar el código
+
+La aplicación está hecha con Laravel 13, PHP 8.5, React y PostgreSQL. Para trabajar en local necesitas PHP con `pdo_pgsql`, Composer, Node.js y una base PostgreSQL.
+
+En una copia local del proyecto:
+
+1. Copia `.env.example` a `.env` y completa los datos de **una base de pruebas**, no los de producción.
+2. Instala dependencias y prepara la base:
 
    ```powershell
    composer install
@@ -14,39 +100,18 @@ Aplicación única de Laravel 13, PHP 8.5 y PostgreSQL. Laravel sirve la interfa
    php artisan migrate
    npm.cmd ci
    npm.cmd run build
+   ```
+
+3. Arranca la web:
+
+   ```powershell
    php artisan serve --host=127.0.0.1 --port=8000
    ```
 
-Abre la portada en http://127.0.0.1:8000/ o los formularios en `/cristorey/caminantes` y `/cristorey/servidores`. Coordinación está en `/cristorey/coordinacion`.
+   Entra en `http://127.0.0.1:8000`. No subas el archivo `.env`: contiene claves de la instalación local.
 
-Para entrar en Cristo Rey, genera una clave aleatoria de 32 bytes y su SHA-256 con PHP. El comando pide guardar la clave en privado y copiar solo la huella al `.env` en `COORDINACION_LINK_HASH`. Si usabas una clave permanente anterior, puedes reutilizar su huella.
+El proyecto incluye `scripts/preparar-sftp.ps1` para preparar los archivos de una publicación por SFTP. El paquete se genera dentro de `storage/app/private`; la carpeta privada de Laravel debe quedar fuera de `httpdocs`. Antes de publicar, revisa que el paquete corresponda a la versión que quieres subir y guarda una copia recuperable de la web y de la base de datos. Para migrar la base de producción o importar datos históricos, coordínalo con la persona responsable del alojamiento y haz primero una copia de seguridad.
 
-```powershell
-php -r ' $clave = bin2hex(random_bytes(32)); echo $clave.PHP_EOL.hash(chr(115).chr(104).chr(97).chr(50).chr(53).chr(54), $clave).PHP_EOL; '
-```
+## Cuidemos los datos
 
-El enlace es `/mapa.html#acceso=CLAVE`. Las invitaciones de servidores se generan desde Configuración en el panel.
-
-## Importar la base anterior
-
-1. Haz una copia consistente de las bases de `backend/data/ediciones`. Usa una copia SQLite que incluya las escrituras pendientes del WAL. Conserva la estructura `cristorey/vii.db` y las demás parroquias y ediciones.
-2. Con `pdo_sqlite` habilitado en PHP, ejecuta `php artisan bartimeo:importar RUTA_A_EDICIONES` para simular la carga. Revisa los recuentos.
-3. Ejecuta el mismo comando con `--aplicar` en la base de destino inicializada con `php artisan migrate`. Si vuelves a ejecutar la misma copia, la carga identifica las ediciones ya importadas. Las sesiones antiguas se renuevan entrando en el panel. Habilita Sodium si necesitas validar contraseñas scrypt de otras parroquias durante su primer acceso.
-
-La carga separa los datos por parroquia y edición y conserva las fichas, los catálogos, los límites, los enlaces y las asistencias disponibles en la copia. Los JSON históricos se conservan como referencia.
-
-## Subir por FileZilla a bartimeocordoba.org
-
-El script `scripts/preparar-sftp.ps1` genera dos carpetas en `storage/app/private`. El paquete incluye los recursos compilados y el vendor de producción. Puedes indicar las rutas de PHP 8.5 y de `composer.phar` con `-Php` y `-Composer`.
-
-1. Confirma PHP 8.5 con `pdo_pgsql`, PostgreSQL, HTTPS y la posibilidad de ejecutar comandos de PHP por SSH o desde el panel del alojamiento. En Apache, la raíz pública usa el `.htaccess` incluido. Si el alojamiento ejecuta solo Nginx, pide al proveedor las reglas de redirección a `index.php`.
-2. Sube `bartimeo-app` a `/var/www/vhosts/bartimeocordoba.org/bartimeo-app`, al lado de `httpdocs`. Copia `.env.sftp.example` a `.env` dentro de `bartimeo-app` y completa la configuración allí.
-3. En esa carpeta privada ejecuta `php artisan key:generate --force` una sola vez y `php artisan migrate --force`. Importa la copia privada si procede. El proceso PHP necesita permiso de escritura en `storage` y `bootstrap/cache`. Configura la huella de acceso de Cristo Rey.
-4. Guarda una copia del `index.html` actual fuera de `httpdocs`. Sube allí el contenido de la carpeta pública `httpdocs` del paquete, incluido `.htaccess`. Retira el `index.html` anterior de la raíz pública para que se sirva `index.php`.
-5. Comprueba `/health` por HTTPS y las rutas de ambos formularios. Envía cada formulario vacío y comprueba que el servidor rechaza la inscripción incompleta. Comprueba también el acceso real a coordinación y una invitación.
-
-Si cuentas solo con FileZilla, necesitarás que el administrador del hosting cree la base y ejecute la inicialización. Conserva fuera de `httpdocs` la aplicación, las claves y las copias de datos.
-
-## Pruebas
-
-Inicializa una base PostgreSQL vacía para las pruebas, configura sus credenciales y ejecuta `php artisan migrate` y `php artisan test` contra esa base. Compila el frontend antes de ejecutar la prueba de la portada.
+Las fichas pueden incluir teléfonos, domicilios, contactos de emergencia e información de salud. No compartas capturas, CSV ni enlaces privados fuera del equipo que los necesita. No publiques claves, enlaces de acceso ni archivos `.env` en GitHub. Si alguien deja el equipo, acuerda la renovación de sus accesos con la persona que administra la web.
