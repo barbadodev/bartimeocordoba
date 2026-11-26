@@ -1,0 +1,476 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Espacio superior para que el header fijo no tape los títulos de sección al hacer clic */
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+:root {
+  --color-primary: #5C1824;
+  --color-primary-dark: #421019;
+  --color-primary-light: #7E2434;
+  --color-gold: #D4A359;
+  --color-gold-light: #F4E8D6;
+  --color-bg: #FAF6F3;
+  --color-card: #FFFFFF;
+  --color-text: #2A1B1E;
+  --color-text-muted: #6E5C60;
+  --color-border: #E8DFDA;
+  --color-border-focus: #5C1824;
+  --color-success: #2E7D32;
+  --color-danger: #C62828;
+  --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Cinzel', Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Mobile-First Container */
+.container {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 12px 14px 60px 14px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 680px;
+    padding: 24px 20px 80px 20px;
+  }
+}
+
+/* Mobile-First Card */
+.card {
+  background: var(--color-card);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 12px -2px rgba(92, 24, 36, 0.05);
+  padding: 18px 14px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 24px 22px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Typography */
+.title-serif {
+  font-family: var(--font-serif);
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+}
+
+/* Inputs & Form Elements (16px base font to avoid iOS zoom) */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  margin-bottom: 5px;
+}
+
+.form-label .req {
+  color: var(--color-danger);
+  margin-left: 3px;
+}
+
+[data-demo="true"] .req {
+  display: none;
+}
+
+.form-hint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.input-field, .select-field, .textarea-field {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background-color: #FAFAFA;
+  font-size: 16px; /* Imprescindible para evitar zoom automático en Safari móvil */
+  color: var(--color-text);
+  transition: all 0.2s ease;
+  appearance: none;
+}
+
+.input-field:focus, .select-field:focus, .textarea-field:focus {
+  outline: none;
+  background-color: #FFFFFF;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(92, 24, 36, 0.12);
+}
+
+.textarea-field {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Buttons (Touch Friendly 46px min height) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 3px 12px rgba(92, 24, 36, 0.22);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-border);
+}
+
+.btn-secondary:active {
+  background-color: #F8F5F2;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-wine {
+  background-color: rgba(92, 24, 36, 0.08);
+  color: var(--color-primary);
+}
+
+.badge-gold {
+  background-color: rgba(212, 163, 89, 0.15);
+  color: #A3742C;
+}
+
+.badge-green {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+
+/* Radio / Choice Cards */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.choice-card {
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  background: #FFFFFF;
+  text-align: center;
+  font-size: 0.88rem;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.choice-card:active {
+  background: #FAF6F4;
+}
+
+.choice-card.selected {
+  border-color: var(--color-primary);
+  background: rgba(92, 24, 36, 0.06);
+  color: var(--color-primary);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(92, 24, 36, 0.18);
+}
+
+/* Navigation footer */
+.form-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+  gap: 10px;
+}
+
+.form-nav .btn {
+  flex: 1;
+}
+
+/* Alert Boxes */
+.alert-box {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.alert-warning {
+  background-color: #FFF9E6;
+  border: 1px solid #FFE082;
+  color: #795548;
+}
+
+/* =========================================
+   PANEL DE COORDINACIÓN - ESPECÍFICO ORDENADOR Y MÓVIL
+   ========================================= */
+.container-admin-desktop {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 28px 80px 28px;
+}
+
+@media (max-width: 768px) {
+  .container-admin-desktop {
+    padding: 12px 10px 80px 10px;
+  }
+}
+
+.desktop-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.desktop-table th {
+  background-color: #FAF4F1;
+  color: #5C1824;
+  font-weight: 700;
+  padding: 14px 18px;
+  border-bottom: 2px solid #E8DFDA;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  user-select: none;
+}
+
+.desktop-table td {
+  padding: 13px 18px;
+  border-bottom: 1px solid #F0EAE6;
+  vertical-align: middle;
+}
+
+.desktop-table tr:hover td {
+  background-color: #FDF9F7;
+}
+
+.desktop-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) {
+  .desktop-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+}
+
+.admin-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  border: 1px solid #E8DFDA;
+  border-radius: 16px;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(92, 24, 36, 0.04);
+}
+
+@media (max-width: 768px) {
+  .admin-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px 14px;
+  }
+  .admin-header-bar > div:first-child {
+    width: 100%;
+  }
+}
+
+.login-card-desktop {
+  max-width: 460px;
+  width: 100%;
+  margin: 60px auto;
+  background: #FFFFFF;
+  border: 1.5px solid #E8DFDA;
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow: 0 10px 30px rgba(92, 24, 36, 0.08);
+}
+
+@media (max-width: 600px) {
+  .login-card-desktop {
+    margin: 20px auto;
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+}
+
+/* =========================================
+   ELEMENTOS NATIVOS MÓVILES PARA COORDINACIÓN
+   ========================================= */
+.servidor-card-mobile {
+  background: #FFFFFF;
+  border: 1px solid #E8DFDA;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(92, 24, 36, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-contact-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-mobile-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #FAF6F4;
+  border: 1px solid #E8DFDA;
+  color: #5C1824;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.btn-mobile-call:active {
+  background: #F0EAE6;
+}
+
+.btn-mobile-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #E8F5E9;
+  border: 1px solid #C8E6C9;
+  color: #2E7D32;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.btn-mobile-whatsapp:active {
+  background: #C8E6C9;
+}
+
+.view-toggle-btn {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid #E8DFDA;
+  background: #FFFFFF;
+  color: #6E5C60;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-toggle-btn.active {
+  background: #5C1824;
+  color: #FFFFFF;
+  border-color: #5C1824;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+

@@ -1,0 +1,38 @@
+{
+  "id": "bartimeo-caminantes-app",
+  "name": "bartimeocordoba.org - Caminantes VII Bartimeo Córdoba",
+  "short_name": "Caminantes Bartimeo",
+  "description": "Inscripción Oficial de Caminantes • bartimeocordoba.org • Parroquia Cristo Rey",
+  "start_url": "/caminantes.html?pwa=caminantes",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF6F3",
+  "theme_color": "#5C1824",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-bartimeo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-bartimeo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-bartimeo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
