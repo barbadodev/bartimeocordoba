@@ -18,6 +18,29 @@ class BartimeoTest extends TestCase
         return $this->postJson('/api/coordinacion/enlaces/canjear', compact('clave'))->assertOk()->json('token');
     }
 
+    public function test_importar_personas_conserva_identidad_y_marcas(): void
+    {
+        $token = $this->coordinacion();
+        $estado = $this->withToken($token)->getJson('/api/asistencias/state')->assertOk()->json();
+        $personas = [['name' => 'Persona de prueba Excel', 'tipo' => 'servidor', 'foraneo' => true]];
+        $this->postJson('/api/asistencias/importar-personas', ['revision' => $estado['revision'], 'personas' => $personas])->assertOk();
+        $estado = $this->getJson('/api/asistencias/state')->assertOk()->json();
+        $persona = collect($estado['members'])->firstWhere('name', 'Persona de prueba Excel');
+        $cantidad = count($estado['members']);
+        $estado['meetings'][] = ['id' => 'reunion-prueba-excel', 'date' => '2026-11-27'];
+        foreach (['p', 'i', 'a', 'p'] as $marca) {
+            $estado['att']['reunion-prueba-excel'][$persona['id']] = $marca;
+            $this->postJson('/api/asistencias/state', $estado)->assertOk();
+            $estado = $this->getJson('/api/asistencias/state')->assertOk()->json();
+            $this->assertCount($cantidad, $estado['members']);
+            $this->assertSame($marca, $estado['att']['reunion-prueba-excel'][$persona['id']]);
+        }
+        $this->postJson('/api/asistencias/importar-personas', ['revision' => $estado['revision'], 'personas' => $personas])->assertOk();
+        $final = $this->getJson('/api/asistencias/state')->assertOk()->json();
+        $this->assertCount($cantidad, $final['members']);
+        $this->assertSame('p', $final['att']['reunion-prueba-excel'][$persona['id']]);
+    }
+
     public function test_sesion_persiste_y_se_revoca_en_postgresql(): void
     {
         $this->getJson('/api/servidores')->assertUnauthorized();

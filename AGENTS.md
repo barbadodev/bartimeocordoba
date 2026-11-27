@@ -1,148 +1,175 @@
 <laravel-boost-guidelines>
-=== foundation rules ===
+=== reglas fundamentales ===
 
-# Laravel Boost Guidelines
+# Directrices de Laravel Boost
 
-## Foundational Context
+## Contexto fundamental
 
-This application is a Laravel application running on PHP 8.5. Always use the APIs that match the installed major version of each package — do not assume a version.
+Esta aplicación usa Laravel 13 y PHP 8.5. Utiliza siempre las API que correspondan a la versión principal instalada de cada paquete; no las des por supuestas.
 
-Before relying on a package's API, confirm its installed version:
-- PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
-- JS packages: check `package.json` for the installed versions.
+Antes de depender de la API de un paquete, confirma su versión instalada:
+- Paquetes PHP: ejecuta `composer show --direct` para ver las dependencias directas y sus versiones, o `composer show <vendor/package>` para consultar una.
+- Paquetes JavaScript: consulta las versiones instaladas en `package.json`.
 
-## Skills Activation
+## Activación de skills
 
-This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
+Este proyecto contiene skills específicas por dominio en `**/skills/**`. Activa obligatoriamente la skill pertinente cuando trabajes en ese dominio; no esperes a tener un problema.
 
-## Conventions
+## Convenciones
 
-- You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
-- Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
-- Check for existing components to reuse before writing a new one.
+- Respeta todas las convenciones de código existentes. Antes de crear o editar un archivo, revisa archivos hermanos para seguir su estructura, enfoque y nombres.
+- Usa nombres descriptivos para variables y métodos. Por ejemplo, `isRegisteredForDiscounts` en lugar de `discount()`.
+- Comprueba si ya hay componentes reutilizables antes de crear otros.
 
-## Verification Scripts
+## Scripts de verificación
 
-- Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
+No crees scripts de verificación ni uses Tinker cuando las pruebas existentes cubran esa funcionalidad. Las pruebas unitarias y de funcionalidad tienen prioridad.
 
-## Application Structure & Architecture
+## Estructura y arquitectura de la aplicación
 
-- Stick to existing directory structure; don't create new base folders without approval.
-- Do not change the application's dependencies without approval.
+- Respeta la estructura de directorios existente; no crees carpetas base sin autorización.
+- No cambies las dependencias de la aplicación sin autorización.
 
-## Frontend Bundling
+## Vistas y recursos del frontend
 
-- If a frontend change doesn't show in the UI or you get a "Unable to locate file in Vite manifest" error, run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
+Las vistas Blade y los estilos estáticos se sirven con Laravel. Si una vista no refleja un cambio, ejecuta `php artisan view:clear`.
 
-## Documentation Files
+## Archivos de documentación
 
-- You must only create documentation files if explicitly requested by the user.
+Crea archivos de documentación únicamente cuando se soliciten explícitamente.
 
-=== boost rules ===
+=== reglas de Boost ===
 
-# Laravel Boost
+## Herramientas
 
-## Tools
+Laravel Boost es un servidor MCP con herramientas específicas para esta aplicación. Prefiere las herramientas de Boost a las alternativas manuales, como comandos de terminal o lectura de archivos.
+- Usa `database-query` para consultas de solo lectura a la base de datos, en lugar de SQL escrito en Tinker.
+- Usa `database-schema` para inspeccionar la estructura antes de escribir migraciones o modelos.
+- Usa `get-absolute-url` para resolver el esquema, dominio y puerto correctos antes de compartir una URL con el usuario.
+- Usa `browser-logs` para consultar errores y registros recientes del navegador; ignora los antiguos.
 
-- Laravel Boost is an MCP server with tools designed specifically for this application. Prefer Boost tools over manual alternatives like shell commands or file reads.
-- Use `database-query` to run read-only queries against the database instead of writing raw SQL in tinker.
-- Use `database-schema` to inspect table structure before writing migrations or models.
-- Use `get-absolute-url` to resolve the correct scheme, domain, and port for project URLs. Always use this before sharing a URL with the user.
-- Use `browser-logs` to read browser logs, errors, and exceptions. Only recent logs are useful, ignore old entries.
+## Búsqueda de documentación (importante)
 
-## Searching Documentation (IMPORTANT)
+- Antes de hacer cambios que dependan de API, comportamiento, configuración o sintaxis específica de versión del ecosistema Laravel, usa `search-docs`. No hace falta para cambios que solo copian texto u otros cambios sin dependencia de documentación de paquetes. Reutiliza resultados suficientes que ya estén disponibles en el contexto.
+- Si conoces los paquetes relevantes, pasa un arreglo `packages` para limitar la búsqueda.
+- Usa varias consultas amplias sobre el tema, por ejemplo: `['rate limiting', 'routing rate limiting', 'routing']`. Los resultados más pertinentes suelen aparecer primero.
+- No incluyas nombres de paquetes en las consultas: la herramienta ya conoce la información de paquetes. Usa `test resource table`, no `filament 4 test resource table`.
 
-- Use `search-docs` before changes that depend on Laravel ecosystem APIs, behavior, configuration, or version-specific syntax. Skip it for copy-only edits and other changes where package documentation is irrelevant. Reuse sufficient results already in context instead of searching again.
-- Pass a `packages` array to scope results when you know which packages are relevant.
-- Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
-- Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
+### Sintaxis de búsqueda
 
-### Search Syntax
+1. Las palabras aplican lógica AND con derivación automática; `rate limit` busca ambos términos.
+2. Las frases entre comillas buscan coincidencias exactas y contiguas; `"infinite scroll"` exige esas palabras en ese orden.
+3. Combina palabras y frases según necesites.
+4. Usa varias consultas para buscar alternativas, por ejemplo `queries=["authentication", "middleware"]`.
 
-1. Use words for auto-stemmed AND logic: `rate limit` matches both "rate" AND "limit".
-2. Use `"quoted phrases"` for exact position matching: `"infinite scroll"` requires adjacent words in order.
-3. Combine words and phrases for mixed queries: `middleware "rate limit"`.
-4. Use multiple queries for OR logic: `queries=["authentication", "middleware"]`.
+## Reglas del proyecto
 
-## Project Rules
+Si existe `.ai/rules`, contiene reglas agrupadas por áreas y puede incluir directrices de framework en `.ai/rules/boost`. Antes de entrar en modo de planificación o crear/editar archivos:
+1. Abre `.ai/rules/index.md`, que relaciona patrones de rutas con archivos de reglas.
+2. Lee cada regla cuyo patrón incluya las rutas afectadas.
+3. Ejecuta `grep -rin 'keyword' .ai/rules` para localizar reglas adicionales que la coincidencia de rutas no detecte.
 
-- This project contains committed, area-grouped rules in `.ai/rules` when that directory exists, including path-scoped framework guidelines under `.ai/rules/boost`. Before you enter plan mode or create/edit any file, you MUST first: open @.ai/rules/index.md (it maps file globs to rule files), read every rule file whose globs cover the path(s) in scope, and run `grep -rin 'keyword' .ai/rules` to catch what a path match alone misses. Do not write code until you have read and are following every matching rule. If `.ai/rules` does not exist, continue without it.
+No escribas código hasta haber leído y estar siguiendo todas las reglas aplicables. Si no existe `.ai/rules`, continúa sin este paso.
 
 ## Artisan
 
-- Run Artisan commands directly via the command line (e.g., `php artisan route:list`). Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
-- Inspect routes with `php artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
-- Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
+- Ejecuta los comandos de Artisan directamente desde la terminal, por ejemplo `php artisan route:list`.
+- Usa `php artisan list` para descubrir comandos y `php artisan [comando] --help` para consultar sus opciones.
+- Inspecciona rutas con `php artisan route:list`; puedes filtrar con `--method=GET`, `--name=users`, `--path=api`, `--except-vendor` o `--only-vendor`.
+- Consulta configuración mediante notación de puntos, por ejemplo `php artisan config:show app.name` o `php artisan config:show database.default`, o lee directamente los archivos de `config/`.
 
 ## Tinker
 
-- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
+- Ejecuta PHP en el contexto de la aplicación para depurar o probar. No crees modelos sin autorización del usuario; prefiere las pruebas con factories. Prioriza los comandos Artisan existentes sobre Tinker.
+- Usa comillas simples para evitar la expansión del shell: `php artisan tinker --execute 'Your::code();'`.
+- Dentro del PHP usa comillas dobles cuando sea necesario: `php artisan tinker --execute 'User::where("active", true)->count();'`.
 
-=== php rules ===
+=== reglas PHP ===
 
-# PHP
+- Usa siempre llaves en las estructuras de control, incluso si el cuerpo tiene una sola línea.
+- Usa promoción de propiedades en el constructor de PHP 8, por ejemplo: `public function __construct(public GitHub $github) { }`. No dejes constructores vacíos sin parámetros, salvo que sean privados.
+- Declara tipos de retorno explícitos y tipos para todos los parámetros de métodos, por ejemplo: `function isAccessible(User $user, ?string $path = null): bool`.
+- Usa PascalCase para las claves de enumeraciones, por ejemplo `FavoritePerson`, `BestLake`, `Monthly`.
+- Prefiere bloques PHPDoc a comentarios en línea. Añade comentarios en línea solo para lógica excepcionalmente compleja.
+- Define las formas de los arreglos en PHPDoc.
 
-- Always use curly braces for control structures, even for single-line bodies.
-- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
-- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
-- Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
-- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
-- Use array shape type definitions in PHPDoc blocks.
+=== reglas de despliegue ===
 
-=== deployments rules ===
+Laravel puede desplegarse en Laravel Cloud. Activa la skill `deploying-to-cloud` al desplegar en Laravel Cloud, configurar sus entornos o recursos, usar su CLI o resolver problemas de despliegue.
 
-# Deployment
+=== reglas de Laravel ===
 
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
-- Activate the `deploying-to-cloud` skill whenever deploying to Laravel Cloud, configuring Cloud environments or resources, using the Cloud CLI, or troubleshooting Cloud deployments.
+## Sigue las prácticas de Laravel
 
-=== laravel/core rules ===
+- Usa comandos `php artisan make:` para crear archivos (migraciones, controladores, modelos, etc.). Consulta `php artisan list` para descubrir comandos y `php artisan [comando] --help` para ver opciones.
+- Para una clase PHP genérica, usa `php artisan make:class`.
+- Añade `--no-interaction` a todos los comandos Artisan para que no soliciten información, junto con las opciones apropiadas.
 
-# Do Things the Laravel Way
+### Creación de modelos
 
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `php artisan list` and check their parameters with `php artisan [command] --help`.
-- If you're creating a generic PHP class, use `php artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
+Al crear modelos, crea también factories y seeders útiles. Consulta `php artisan make:model --help` para comprobar las opciones disponibles.
 
-### Model Creation
+### API y recursos de Eloquent
 
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
+Para API, usa por defecto recursos de API de Eloquent y versionado. Si las rutas API existentes no siguen ese patrón, respeta la convención actual de la aplicación.
 
-## APIs & Eloquent Resources
+### Generación de URL
 
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
+Al generar enlaces a otras páginas, prefiere rutas con nombre y la función `route()`.
 
-## URL Generation
+### Pruebas
 
-- When generating links to other pages, prefer named routes and the `route()` function.
+- Al crear modelos para pruebas, usa factories y revisa si tienen estados personalizados antes de configurar los modelos manualmente.
+- Con Faker, utiliza métodos como `$this->faker->word()` o `fake()->randomDigit()`. Sigue la convención existente del proyecto entre `$this->faker` y `fake()`.
+- Crea pruebas de funcionalidad con `php artisan make:test [opciones] {Nombre}` y añade `--unit` para pruebas unitarias. La mayoría de las pruebas deberían ser de funcionalidad.
 
-## Testing
+=== reglas de Pint ===
 
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
+Si modificas archivos PHP, antes de finalizar ejecuta `vendor/bin/pint --dirty --format agent` para aplicar el formato esperado por el proyecto. No ejecutes `vendor/bin/pint --test --format agent`; usa Pint para corregir el formato.
 
-=== pint/core rules ===
+=== reglas de PHPUnit ===
 
-# Laravel Pint Code Formatter
+- El proyecto usa PHPUnit. Crea pruebas con `php artisan make:test --phpunit {NombreDePrueba}`.
+- No incluyas el directorio de la suite en el nombre. Usa `SomeFeatureTest`, no `Feature/SomeFeatureTest`.
+- Lee la skill `testing-best-practices` al decidir cobertura, nombres, estructura, aislamiento de dependencias, revisar pruebas o mejorar su rendimiento.
 
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
+## Ejecución de pruebas
 
-=== phpunit/core rules ===
-
-# PHPUnit
-
-- This project uses PHPUnit. Create tests with `php artisan make:test --phpunit {name}`.
-- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
-- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
-
-## Running Tests
-
-- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
-- Rerun a test after each change to it.
-- Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
-
+- Ejecuta el conjunto más pequeño que cubra el cambio. Pasa una ruta de archivo o `--filter=nombreDePrueba` a `php artisan test --compact`.
+- Vuelve a ejecutar cada prueba después de modificarla.
+- También puedes ejecutar `vendor/bin/phpunit` directamente; acepta las mismas rutas y filtros.
 </laravel-boost-guidelines>
+
+## Proyecto: Bartimeo Córdoba
+
+### Stack y estructura
+
+- La aplicación usa Laravel 13, PHP `^8.5`, PostgreSQL, Blade y Bootstrap CSS. El frontend funciona sin JavaScript, Node ni compilación.
+- La API está en `routes/api.php`; las páginas Laravel, en `routes/web.php`. Los controladores están en `app/Http/Controllers`, la lógica de dominio en `app/Bartimeo` y el aislamiento de parroquia/edición en `ContextoBartimeo` y `Retiro`.
+- Las vistas están en `resources/views`. Los estilos están en `public/css` y se usan desde `resources/views/layouts/bartimeo.blade.php`.
+- El esquema propio está definido en `database/migrations`. Actualmente, los datos Bartimeo no usan modelos Eloquent: la lógica emplea `DB` y Query Builder. Sigue ese patrón donde corresponda, sin añadir otra capa ni dependencias por iniciativa propia.
+- `resources/datos/retiro.json` es configuración local privada. No la copies, imprimas ni incluyas en entregas. Usa `retiro.example.json` como plantilla segura.
+
+### Dominio y seguridad
+
+- Los datos se aíslan por `edicion_id`; el middleware de contexto resuelve la parroquia y edición de cada petición. Toda consulta nueva debe mantener ese ámbito y no confiar en identificadores recibidos del cliente.
+- Las rutas de coordinación se protegen en el servidor con `SesionCoordinacion`. No expongas tokens, hashes, credenciales ni datos personales en respuestas, registros o exportaciones fuera del flujo autorizado.
+- Las escrituras críticas de inscripción y aforo usan `Retiro::escribir()` para gestionar transacciones y bloqueos de edición. Conserva la atomicidad y las claves de idempotencia al modificar altas o importaciones.
+- Valida en el servidor todos los datos recibidos; el frontend solo mejora la experiencia. Mantén las respuestas JSON y los códigos HTTP coherentes con los controladores existentes y usa `Retiro::error()` para errores HTTP del dominio.
+- La importación de asistencias debe preservar identidad e historial y ser idempotente. Revisa la lógica existente en `Asistencias` antes de añadir una implementación paralela.
+- No cambies datos de producción, configuración del alojamiento ni credenciales durante tareas locales sin autorización explícita.
+
+### Convenciones del código
+
+- El backend usa nombres de dominio en español, controladores `final`, consultas explícitas con Query Builder, transacciones de Laravel y respuestas `response()->json(...)`. Mantén estas convenciones en los archivos relacionados.
+- Usa formularios HTML con CSRF para escrituras, enlaces de rutas con nombre para navegación y elementos nativos como `details` para desplegables.
+- Conserva el contexto de parroquia y edición en las rutas privadas y aplica la autenticación por sesión de Laravel. Solo los administradores pueden gestionar usuarios.
+- Conserva la accesibilidad, los estados de carga/error/vacío y la validación visibles en los formularios y paneles existentes. No añadas valores simulados a flujos de producción.
+- No añadas dependencias sin autorización. Revisa `composer.json` antes de proponer cambios en el stack.
+
+### Verificación
+
+- Pruebas backend: `php artisan test --compact` (PHPUnit; `tests/Feature/BartimeoTest.php` cubre flujos de negocio y PostgreSQL).
+- Compilación de plantillas: `php artisan view:cache`.
+- Si modificas archivos PHP, ejecuta `vendor/bin/pint --dirty --format agent`.
+- Ejecuta las comprobaciones pertinentes al cambio e informa si alguna no está disponible. No afirmes haber validado manualmente la interfaz ni una base de datos si no lo hiciste.

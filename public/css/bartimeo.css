@@ -1,0 +1,58 @@
+:root {
+    --bs-body-font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    --bs-body-bg: #faf6f3;
+    --bs-body-color: #2a1b1e;
+    --bs-primary: #5c1824;
+    --bs-primary-rgb: 92, 24, 36;
+    --bs-border-color: #e8dfda;
+    --color-primary: #5c1824;
+    --color-primary-dark: #421019;
+    --color-gold: #d4a359;
+    --color-gold-light: #f4e8d6;
+    --color-text-muted: #6e5c60;
+    --font-serif: "Cinzel", Georgia, serif;
+}
+
+.title-serif {
+    color: var(--color-primary);
+    font-family: var(--font-serif);
+    letter-spacing: .02em;
+}
+
+.bartimeo-card {
+    --bs-card-bg: #fff;
+    --bs-card-border-radius: 1.25rem;
+    box-shadow: 0 2px 12px -2px rgb(92 24 36 / 8%);
+}
+
+.btn-primary {
+    --bs-btn-bg: #5c1824;
+    --bs-btn-border-color: #5c1824;
+    --bs-btn-hover-bg: #421019;
+    --bs-btn-hover-border-color: #421019;
+    --bs-btn-active-bg: #421019;
+    --bs-btn-active-border-color: #421019;
+    --bs-btn-focus-shadow-rgb: 126, 36, 52;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #5c1824;
+    --bs-btn-border-color: #5c1824;
+    --bs-btn-hover-bg: #5c1824;
+    --bs-btn-hover-border-color: #5c1824;
+    --bs-btn-active-bg: #421019;
+    --bs-btn-active-border-color: #421019;
+    --bs-btn-focus-shadow-rgb: 126, 36, 52;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #7e2434;
+    box-shadow: 0 0 0 .2rem rgb(92 24 36 / 15%);
+}
+
+.bartimeo-logo {
+    height: 64px;
+    width: 64px;
+    object-fit: cover;
+    border-radius: 1rem;
+}

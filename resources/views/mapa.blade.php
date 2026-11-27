@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bartimeo Córdoba | Mapa de pantallas</title>
-    <link rel="icon" type="image/png" href="/logo-bartimeo.png" />
-    <meta name="theme-color" content="#5C1824" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    @viteReactRefresh
-    @vite('resources/js/main.jsx')
-  </body>
-</html>
+@extends('layouts.bartimeo')
+
+@section('title', 'Mapa de coordinación')
+
+@section('content')
+<main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4"><div><p class="text-muted mb-1">{{ $parroquia }} · {{ $retiro->edicion }}</p><h1>Mapa de pantallas</h1></div><form method="post" action="{{ route('bartimeo.salir', ['parroquia' => $parroquia]) }}">@csrf<button class="btn btn-outline-secondary">Cerrar sesión</button></form></div>
+    <div class="row g-3">
+        @foreach ([['Panel de inscripciones', 'bartimeo.panel'], ['Asistencias', 'bartimeo.asistencias']] as [$titulo, $ruta])
+            <div class="col-md-6"><a class="card card-body h-100 text-decoration-none" href="{{ route($ruta, ['parroquia' => $parroquia, 'edicion' => $retiro->edicion]) }}"><h2 class="h5">{{ $titulo }}</h2><span>Abrir pantalla →</span></a></div>
+        @endforeach
+        <div class="col-md-6"><a class="card card-body h-100 text-decoration-none" href="{{ route('bartimeo.panel', ['parroquia' => $parroquia, 'edicion' => $retiro->edicion, 'seccion' => 'configuracion']) }}"><h2 class="h5">Configuración</h2><span>Aforo, enlaces y gestión →</span></a></div>
+        <div class="col-md-6"><a class="card card-body h-100 text-decoration-none" href="{{ route('bartimeo.portada', ['parroquia' => $parroquia]) }}"><h2 class="h5">Portada pública</h2><span>Ver sitio →</span></a></div>
+    </div>
+    <form method="get" class="mt-4"><label class="form-label" for="edicion">Edición</label><select id="edicion" name="edicion" class="form-select mb-2">@foreach($ediciones as $edicion)<option value="{{ $edicion->slug }}" @selected($edicion->slug === $retiro->edicion)>{{ $edicion->nombre }}</option>@endforeach</select><button class="btn btn-outline-primary">Cambiar edición</button></form>
+</main>
+@endsection

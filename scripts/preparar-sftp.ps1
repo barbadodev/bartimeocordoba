@@ -63,11 +63,6 @@ New-Item -ItemType Directory -Path $privado,$publico | Out-Null
 
 Push-Location $app
 try {
-    npm.cmd ci --no-audit --no-fund
-    if ($LASTEXITCODE -ne 0) { throw 'Falló npm ci.' }
-    npm.cmd run build
-    if ($LASTEXITCODE -ne 0) { throw 'Falló la compilación.' }
-
     foreach ($name in @('app','bootstrap','config','database','routes','artisan','composer.json','composer.lock','.env.sftp.example')) {
         Copy-Item -LiteralPath (Join-Path $app $name) -Destination $privado -Recurse
     }
@@ -81,7 +76,7 @@ try {
     }
     Get-ChildItem -LiteralPath (Join-Path $privado 'bootstrap/cache') -File -Filter '*.php' | Remove-Item
     Get-ChildItem -LiteralPath (Join-Path $app 'public') -Force |
-        Where-Object Name -NotIn @('hot','storage') | Copy-Item -Destination $publico -Recurse
+        Where-Object Name -NotIn @('build','hot','storage') | Copy-Item -Destination $publico -Recurse
 
     Push-Location $privado
     try {

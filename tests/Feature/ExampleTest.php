@@ -14,6 +14,8 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertOk()
+            ->assertSee('/css/bootstrap.min.css')
+            ->assertDontSee('<script', false);
     }
 }

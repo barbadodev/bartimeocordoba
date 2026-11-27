@@ -21,11 +21,11 @@ Las direcciones se abren en el dominio de Bartimeo. Las rutas de Cristo Rey son:
 | Portada | `/` | Todo el mundo |
 | Inscripción de caminantes | `/cristorey/caminantes` | Familias y caminantes |
 | Inscripción de servidores | `/cristorey/servidores` | Personas invitadas por coordinación |
-| Panel de coordinación | `/cristorey/coordinacion` | Coordinadores con acceso privado |
+| Panel de coordinación | URL privada de la instalación | Usuarios de coordinación y administración |
 
-El panel de Cristo Rey se abre con un **enlace privado de coordinación**. No hay que escribir una contraseña en la página. Pide el enlace a la persona que administre los accesos y no lo reenvíes a grupos públicos: quien lo tenga puede entrar a datos personales.
+El panel de coordinación se abre con **usuario y contraseña** en una URL privada de la instalación. La persona que administre el sitio puede consultarla con `php artisan bartimeo:admin --ruta`. Desde **Administrar usuarios** puede crear cuentas, desactivarlas o cambiar su contraseña. Las cuentas de coordinación se limitan a su parroquia.
 
-La sesión caduca. Si el panel te devuelve a la pantalla de acceso, vuelve a abrir el enlace privado o pide uno nuevo a la administración.
+La sesión caduca. Si el panel te devuelve a la pantalla de acceso, vuelve a iniciar sesión.
 
 ## Lo de cada día
 
@@ -52,12 +52,12 @@ Si ya había una invitación activa y generas otra, la anterior deja de funciona
 En **Asistencias** hay tres pestañas:
 
 - **Reuniones**: añade la fecha de cada reunión. Si todavía no hay reuniones, empieza por aquí.
-- **Toma de asistencia**: elige la reunión y pulsa sobre cada persona para recorrer los estados: sin marcar, presente, incidencia, ausente y de nuevo sin marcar. También puedes marcar como presentes a todas las personas que se muestran en ese momento; revisa los filtros antes de hacerlo.
+- **Toma de asistencia**: elige la reunión y pulsa sobre cada persona para recorrer los estados: sin marcar, presente, incidencia, ausente y de nuevo sin marcar. La lista muestra siempre los dos grupos, Caminantes y Asistentes. También puedes marcar como presentes a todas las personas de esa reunión.
 - **Participantes**: consulta, busca o gestiona la lista usada para pasar asistencia. Aquí se pueden añadir casos excepcionales, como alguien que asistió sin estar inscrito.
 
 La pantalla indica si los cambios están **Guardados** o si hay un problema de conexión. Espera a que indique que se guardaron antes de cerrar la página. Si aparece un error de conexión, pulsa actualizar y comprueba los datos antes de volver a marcar nada.
 
-**Exportar Matriz** descarga el historial de reuniones y asistencias en CSV. Borrar una reunión también borra las marcas de asistencia asociadas; la aplicación avisa antes de hacerlo. Borrar a un participante elimina además su historial.
+**Exportar matriz** descarga el historial de reuniones y asistencias en XLSX. Puedes usar **Plantilla Excel** para importar una lista de participantes. Borrar una reunión elimina sus marcas. Borrar a un participante sin inscripción activa elimina también su historial.
 
 ### Configuración
 
@@ -72,7 +72,7 @@ Antes de abrir la siguiente convocatoria, deja claro quién tiene acceso a estas
 1. El dominio y la cuenta del alojamiento donde está publicada la web.
 2. El acceso de administración de la base de datos y las copias de seguridad.
 3. El repositorio privado de código: [barbadodev/bartimeocordoba](https://github.com/barbadodev/bartimeocordoba). La nueva persona debe tener acceso antes de necesitar hacer cambios.
-4. El enlace privado de coordinación y quién puede generar o renovar los accesos.
+4. La URL privada de coordinación y qué cuenta puede gestionar usuarios.
 
 Después, prepara la nueva edición con tiempo. Como mínimo hay que revisar:
 
@@ -91,11 +91,11 @@ Haz una copia de seguridad antes de tocar la base de datos o publicar una edici�
 
 ## Si hay que tocar o publicar el código
 
-La aplicación está hecha con Laravel 13, PHP 8.5, React y PostgreSQL. Para trabajar en local necesitas PHP con `pdo_pgsql`, Composer, Node.js y una base PostgreSQL.
+La aplicación está hecha con Laravel 13, PHP 8.5, Blade, Bootstrap CSS y PostgreSQL. Para trabajar en local necesitas PHP con `pdo_pgsql`, Composer y una base PostgreSQL. La importación y exportación de Excel requieren ZIP y DOM. Los estilos de Bootstrap se sirven directamente desde `public/css/`.
 
 En una copia local del proyecto:
 
-1. Si todavía no tienes la configuración real, copia `resources/datos/retiro.example.json` como `resources/datos/retiro.json` y completa todos los datos de la nueva edición. Ese archivo está excluido de Git. No uses la plantilla vacía para compilar ni publicar.
+1. Si todavía no tienes la configuración real, copia `resources/datos/retiro.example.json` como `resources/datos/retiro.json` y completa todos los datos de la nueva edición. Ese archivo está excluido de Git. Completa la configuración antes de publicar.
 2. Copia `.env.example` a `.env` y completa los datos de **una base de pruebas**, no los de producción.
 3. Instala dependencias y prepara la base:
 
@@ -103,11 +103,11 @@ En una copia local del proyecto:
    composer install
    php artisan key:generate
    php artisan migrate
-   npm.cmd ci
-   npm.cmd run build
    ```
 
-4. Arranca la web:
+4. Crea el primer usuario `admin` con `php artisan bartimeo:admin`. El comando solicita la contraseña sin mostrarla y devuelve la URL privada. Puedes volver a consultar la URL con `php artisan bartimeo:admin --ruta`. La URL cambia si se cambia la clave de la aplicación.
+
+5. Arranca la web:
 
    ```powershell
    php artisan serve --host=127.0.0.1 --port=8000
