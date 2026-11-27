@@ -201,8 +201,8 @@ final class Asistencias
                         $esperados++;
                     }
                 }
-                if (count($marcasReunion) !== $esperados) {
-                    Retiro::error(400, 'Una reunión no contiene la asistencia completa de su grupo.');
+                if (count($marcasReunion) > $esperados) {
+                    Retiro::error(400, 'El número de marcas supera los participantes del grupo.');
                 }
                 foreach ($marcasReunion as $idOrigen => $estado) {
                     if (($tiposOrigen[$idOrigen] ?? null) !== $tipoReunion || ! in_array($estado, ['p', 'a'], true)) {
