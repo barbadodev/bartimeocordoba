@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class PanelWebController
@@ -23,25 +24,26 @@ final class PanelWebController
                 'catalogos' => array_combine(array_keys(Retiro::CATALOGOS), array_map(fn (string $tipo): array => $retiro->catalogo($tipo), array_keys(Retiro::CATALOGOS))),
                 'configuracion' => $retiro->fila()->first(), 'mensaje' => session('mensaje')]);
         }
-        $tipo = $request->query('tipo', Inscripciones::CAMINANTE);
-        abort_unless(in_array($tipo, [Inscripciones::CAMINANTE, Inscripciones::SERVIDOR], true), 404);
+        $tipo = $this->tipo($request->query('tipo', Inscripciones::SERVIDOR));
         $inscritos = Inscripciones::lista($retiro, $tipo);
-        $total = count($inscritos);
-        $metricas = ['total' => $total, 'confirmados' => count(array_filter($inscritos, fn ($ficha) => $ficha['estado'] === 'Confirmado'))];
+        [$filtros, $opciones] = $this->filtros($request, $retiro, $tipo);
+        $filtrados = $this->filtrar($inscritos, $tipo, $filtros);
+        $tallas = [];
         foreach (['tallaCamiseta', 'tallaCamisetaBlanca', 'tallaCamisetaGris', 'tallaSudadera'] as $campo) {
-            $metricas[$campo] = collect($inscritos)->pluck($campo)->filter()->countBy()->all();
+            $tallas[$campo] = collect($inscritos)->pluck($campo)->filter(fn ($talla) => is_string($talla) && ! in_array(trim($talla), ['', 'No', 'Ya tengo'], true))->countBy()->sortKeys()->all();
         }
+        $cuenta = fn (string $campo, string $valor): int => collect($inscritos)->whereStrict($campo, $valor)->count();
 
-        $busqueda = $request->query('q');
-        if (is_string($busqueda) && trim($busqueda) !== '') {
-            $busqueda = mb_strtolower(mb_substr(trim($busqueda), 0, 120));
-            $inscritos = array_filter($inscritos, fn (array $ficha): bool => str_contains(mb_strtolower(($ficha['nombre'] ?? '').' '.($ficha['apellidos'] ?? '')), $busqueda));
-        }
-
-        return view('panel', ['retiro' => $retiro, 'parroquia' => $retiro->parroquia, 'inscritos' => $inscritos, 'tipo' => $tipo, 'metricas' => $metricas,
-            'busqueda' => is_string($busqueda) ? $busqueda : '',
-            'ediciones' => DB::table('ediciones')->where('parroquia', $retiro->parroquia)->orderByDesc('id')->get(['slug', 'nombre']),
-            'configuracion' => $retiro->fila()->first(), 'mensaje' => session('mensaje')]);
+        return view('panel', [
+            'retiro' => $retiro, 'inscritos' => $filtrados, 'tipo' => $tipo, 'tallas' => $tallas,
+            'filtros' => $filtros, 'opciones' => $opciones, 'total' => count($inscritos),
+            'metricas' => [
+                'jueves' => $cuenta('montajeJueves', 'Sí'), 'experiencia' => $cuenta('haServido', 'Sí'),
+                'nuevos' => $cuenta('haServido', 'No'), 'espera' => $cuenta('listaEsperaPrevia', 'Sí'),
+                'alergias' => count(array_filter($inscritos, fn (array $ficha): bool => $this->tieneAlergia($ficha, $tipo))),
+                'salud' => count(array_filter($inscritos, fn (array $ficha): bool => trim(($ficha['medicacion'] ?? '').($ficha['trastornoSalud'] ?? '')) !== '')),
+            ],
+        ]);
     }
 
     public function guardar(Request $request): RedirectResponse
@@ -76,7 +78,7 @@ final class PanelWebController
             $jsonRequest->attributes->set(Retiro::class, $retiro);
             app(ConfiguracionController::class)->plazas($jsonRequest);
 
-            return $this->volver($retiro, 'Aforo actualizado.');
+            return $this->volver($retiro, 'Aforo actualizado.', ['seccion' => 'configuracion']);
         }
         if ($accion === 'catalogo') {
             $tipo = $request->validate(['catalogo' => ['required', 'string', 'in:'.implode(',', array_keys(Retiro::CATALOGOS))]])['catalogo'];
@@ -154,7 +156,8 @@ final class PanelWebController
     {
         $retiro = $request->attributes->get(Retiro::class);
         $tipo = $this->tipo($request->query('tipo', Inscripciones::CAMINANTE));
-        $filas = Inscripciones::lista($retiro, $tipo);
+        [$filtros] = $this->filtros($request, $retiro, $tipo);
+        $filas = $this->filtrar(Inscripciones::lista($retiro, $tipo), $tipo, $filtros);
 
         return response()->streamDownload(function () use ($filas) {
             $salida = fopen('php://output', 'w');
@@ -185,6 +188,76 @@ final class PanelWebController
         abort_unless(in_array($tipo, [Inscripciones::CAMINANTE, Inscripciones::SERVIDOR], true), 404);
 
         return $tipo;
+    }
+
+    private function filtros(Request $request, Retiro $retiro, string $tipo): array
+    {
+        $siNo = ['si' => 'Sí', 'no' => 'No'];
+        $opciones = $tipo === Inscripciones::SERVIDOR ? [
+            'origen' => ['Todas las parroquias', DB::table('parroquias')->orderBy('nombre')->pluck('nombre', 'nombre')->all()],
+            'servicio' => ['Todos los servicios anteriores', array_combine($servicios = $retiro->valores('servicio'), $servicios)],
+            'jueves' => ['Montaje Jueves: Todos', $siNo],
+            'alergias' => ['Alergias: Todas', ['si' => 'Con alergias', 'no' => 'Sin alergias']],
+            'experiencia' => ['Experiencia: Todos', ['si' => 'Ha servido antes', 'no' => 'Primer servicio']],
+        ] : [
+            'espera' => ['Espera: Todos', $siNo],
+            'experiencia' => ['Inscripciones previas', ['si' => 'Una o más', 'no' => 'Ninguna']],
+            'primera' => ['Primera vez en Cristo Rey', $siNo],
+            'sacramentos' => ['Todos los sacramentos', ['bautismo' => 'Bautismo', 'comunion' => 'Primera comunión', 'ambos' => 'Ambos', 'ninguno' => 'Ninguno']],
+            'alergias' => ['Alergias: Todas', ['si' => 'Con alergias', 'no' => 'Sin alergias']],
+        ];
+        $filtros = ['vista' => $request->query('vista') === 'tarjetas' ? 'tarjetas' : 'tabla', 'orden' => $request->query('orden') === 'desc' ? 'desc' : 'asc'];
+        $busqueda = $request->query('q');
+        $filtros['q'] = is_string($busqueda) ? mb_substr(trim($busqueda), 0, 120) : '';
+        foreach ($opciones as $clave => [, $valores]) {
+            $valor = $request->query($clave);
+            $filtros[$clave] = is_string($valor) && array_key_exists($valor, $valores) ? $valor : '';
+        }
+
+        return [$filtros, $opciones];
+    }
+
+    private function filtrar(array $inscritos, string $tipo, array $filtros): array
+    {
+        $servidor = $tipo === Inscripciones::SERVIDOR;
+        $campos = $servidor ? ['nombre', 'apellidos', 'movil', 'bartimeoOrigen', 'alergias'] : ['nombre', 'apellidos', 'familiar1Nombre', 'familiar1Telefono', 'colegio'];
+        $buscar = fn (string $texto): string => Str::ascii(mb_strtolower($texto));
+        $termino = $buscar($filtros['q']);
+        $resultado = array_filter($inscritos, function (array $ficha) use ($filtros, $servidor, $campos, $buscar, $termino, $tipo): bool {
+            $valores = implode(' ', array_intersect_key($ficha, array_flip($campos)));
+            $esperado = fn (string $campo, bool $valor): bool => empty($filtros[$campo]) || ($filtros[$campo] === 'si') === $valor;
+            if (! str_contains($buscar($valores), $termino) || ! $esperado('alergias', $this->tieneAlergia($ficha, $tipo))) {
+                return false;
+            }
+            if ($servidor) {
+                return ($filtros['origen'] === '' || ($ficha['bartimeoOrigen'] ?? null) === $filtros['origen'])
+                    && ($filtros['servicio'] === '' || in_array($filtros['servicio'], (array) ($ficha['serviciosHechos'] ?? []), true))
+                    && $esperado('jueves', ($ficha['montajeJueves'] ?? null) === 'Sí')
+                    && $esperado('experiencia', ($ficha['haServido'] ?? null) === 'Sí');
+            }
+
+            $bautismo = ! empty($ficha['bautismoRecibido']);
+            $comunion = ! empty($ficha['primeraComunionRecibida']);
+
+            return $esperado('espera', ($ficha['listaEsperaPrevia'] ?? null) === 'Sí')
+                && $esperado('experiencia', (int) ($ficha['inscripcionesPrevias'] ?? 0) > 0)
+                && $esperado('primera', ($ficha['primeraVezCristoRey'] ?? null) === true)
+                && match ($filtros['sacramentos']) {
+                    'bautismo' => $bautismo, 'comunion' => $comunion, 'ambos' => $bautismo && $comunion,
+                    'ninguno' => ! $bautismo && ! $comunion, default => true,
+                };
+        });
+        $nombre = fn (array $ficha): string => $buscar(($ficha['nombre'] ?? '').' '.($ficha['apellidos'] ?? ''));
+        $direccion = $filtros['orden'] === 'desc' ? -1 : 1;
+        usort($resultado, fn (array $a, array $b): int => $direccion * strnatcmp($nombre($a), $nombre($b)));
+
+        return $resultado;
+    }
+
+    private function tieneAlergia(array $ficha, string $tipo): bool
+    {
+        return $tipo === Inscripciones::CAMINANTE ? ($ficha['tieneAlergia'] ?? null) === 'Sí'
+            : ! in_array(mb_strtolower(trim($ficha['alergias'] ?? '')), ['', 'no', 'ninguna', 'ninguno'], true);
     }
 
     private function volver(Retiro $retiro, string $mensaje, array $query = []): RedirectResponse

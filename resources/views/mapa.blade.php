@@ -1,17 +1,54 @@
-@extends('layouts.bartimeo')
+@extends('layouts.coordinacion')
 
-@section('title', 'Mapa de coordinación')
+@section('title', 'Mapa de coordinación | Bartimeo Córdoba')
+@section('pestana', 'mapa')
 
-@section('content')
-<main class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4"><div><p class="text-muted mb-1">{{ $parroquia }} · {{ $retiro->edicion }}</p><h1>Mapa de pantallas</h1></div><form method="post" action="{{ route('bartimeo.salir', ['parroquia' => $parroquia]) }}">@csrf<button class="btn btn-outline-secondary">Cerrar sesión</button></form></div>
+@section('coord-content')
+@php
+    $publico = ['parroquia' => $parroquia];
+    $privado = $publico + ['edicion' => $retiro->edicion];
+    $columnas = [
+        'Rutas de la aplicación' => [
+            ['Portada', 'Página principal de Bartimeo.', 'inicio', 'Pública', route('bartimeo.portada', $publico)],
+            ['Inscripción de caminantes', 'Formulario de inscripción y datos del caminante.', 'brujula', 'Pública', route('bartimeo.caminantes', $publico)],
+            ['Inscripción de servidores', 'Formulario accesible con una invitación de servidores activa.', 'usuarios', 'Requiere invitación', route('bartimeo.servidores', $publico)],
+            ['Portal de coordinación', 'Gestión de inscripciones, caminantes, asistencias y configuración.', 'escudo', 'Acceso con usuario y contraseña', route('bartimeo.acceso', $publico)],
+        ],
+        'Secciones de coordinación' => [
+            ['Inscripciones de servidores', 'Listado, filtros, fichas y exportación.', 'usuarios', '', route('bartimeo.panel', $privado + ['tipo' => 'servidor'])],
+            ['Inscripciones de caminantes', 'Listado y gestión de las inscripciones.', 'brujula', '', route('bartimeo.panel', $privado + ['tipo' => 'caminante'])],
+            ['Asistencias', 'Reuniones, asistencia y participación.', 'calendario', '', route('bartimeo.asistencias', $privado)],
+            ['Configuración', 'Ediciones, plazas, catálogos, parroquias e invitaciones.', 'mapa', '', route('bartimeo.panel', $privado + ['seccion' => 'configuracion'])],
+        ],
+    ];
+@endphp
+<div class="coord-map">
+    <header class="coord-box coord-map-head d-flex align-items-center gap-3 mb-3">
+        <span class="coord-map-icon"><x-coord-icon name="escudo" /></span>
+        <div>
+            <h2 class="title-serif mb-1">Mapa de pantallas</h2>
+            <p class="mb-0">Accesos a las rutas y secciones de la aplicación.</p>
+        </div>
+    </header>
     <div class="row g-3">
-        @foreach ([['Panel de inscripciones', 'bartimeo.panel'], ['Asistencias', 'bartimeo.asistencias']] as [$titulo, $ruta])
-            <div class="col-md-6"><a class="card card-body h-100 text-decoration-none" href="{{ route($ruta, ['parroquia' => $parroquia, 'edicion' => $retiro->edicion]) }}"><h2 class="h5">{{ $titulo }}</h2><span>Abrir pantalla →</span></a></div>
+        @foreach ($columnas as $titulo => $entradas)
+            <div class="col-md-6">
+                <section class="coord-box coord-map-panel h-100">
+                    <h3 class="mb-3">{{ $titulo }}</h3>
+                    @foreach ($entradas as [$nombre, $descripcion, $icono, $etiqueta, $url])
+                        <a class="coord-map-link" href="{{ $url }}">
+                            <span class="coord-map-icon"><x-coord-icon :name="$icono" /></span>
+                            <span>
+                                <strong class="d-block">{{ $nombre }}</strong>
+                                <small class="d-block mt-1">{{ $descripcion }}</small>
+                                @if ($etiqueta)<span class="coord-pill mt-2">{{ $etiqueta }}</span>@endif
+                            </span>
+                            <x-coord-icon name="externo" />
+                        </a>
+                    @endforeach
+                </section>
+            </div>
         @endforeach
-        <div class="col-md-6"><a class="card card-body h-100 text-decoration-none" href="{{ route('bartimeo.panel', ['parroquia' => $parroquia, 'edicion' => $retiro->edicion, 'seccion' => 'configuracion']) }}"><h2 class="h5">Configuración</h2><span>Aforo, enlaces y gestión →</span></a></div>
-        <div class="col-md-6"><a class="card card-body h-100 text-decoration-none" href="{{ route('bartimeo.portada', ['parroquia' => $parroquia]) }}"><h2 class="h5">Portada pública</h2><span>Ver sitio →</span></a></div>
     </div>
-    <form method="get" class="mt-4"><label class="form-label" for="edicion">Edición</label><select id="edicion" name="edicion" class="form-select mb-2">@foreach($ediciones as $edicion)<option value="{{ $edicion->slug }}" @selected($edicion->slug === $retiro->edicion)>{{ $edicion->nombre }}</option>@endforeach</select><button class="btn btn-outline-primary">Cambiar edición</button></form>
-</main>
+</div>
 @endsection

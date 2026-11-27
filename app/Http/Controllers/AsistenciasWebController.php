@@ -44,10 +44,18 @@ final class AsistenciasWebController
         $retiro = $request->attributes->get(Retiro::class);
         $estado = $asistencias->estado($retiro);
         $reunion = $datos['reunion'] ?? null;
-        $volver = function () use ($retiro, &$reunion): RedirectResponse {
-            return redirect()->route('bartimeo.asistencias', [
+        $vista = $request->query('vista');
+        $vista = in_array($vista, ['participantes', 'reuniones'], true) ? $vista : null;
+        $q = $request->query('q');
+        $q = is_string($q) ? mb_substr(trim($q), 0, 120) : null;
+        $resaltar = $request->query('resaltar');
+        $resaltar = in_array($resaltar, ['caminante', 'foraneo', 'sin', 'a', 'p'], true) ? $resaltar : null;
+        $ancla = $datos['accion'] === 'marca' && ! empty($datos['persona']) ? '#persona-'.rawurlencode($datos['persona']) : '';
+        $volver = function () use ($retiro, &$reunion, $vista, $q, $resaltar, $ancla): RedirectResponse {
+            return redirect()->to(route('bartimeo.asistencias', [
                 'parroquia' => $retiro->parroquia, 'edicion' => $retiro->edicion, 'reunion' => $reunion,
-            ]);
+                'vista' => $vista, 'q' => $q, 'resaltar' => $resaltar,
+            ]).$ancla);
         };
 
         if ((int) $datos['revision'] !== $estado['revision']) {
@@ -136,7 +144,7 @@ final class AsistenciasWebController
     {
         $datos = $request->validate(['archivo' => ['required', 'file', 'extensions:xlsx', 'max:5120'], 'revision' => ['required', 'integer', 'min:0']]);
         $retiro = $request->attributes->get(Retiro::class);
-        $volver = redirect()->route('bartimeo.asistencias', ['parroquia' => $retiro->parroquia, 'edicion' => $retiro->edicion]);
+        $volver = redirect()->route('bartimeo.asistencias', ['parroquia' => $retiro->parroquia, 'edicion' => $retiro->edicion, 'vista' => 'participantes']);
         try {
             $personas = $excel->leer($datos['archivo']->getPathname());
             $carga = $request->duplicate([], ['revision' => (int) $datos['revision'], 'personas' => $personas]);

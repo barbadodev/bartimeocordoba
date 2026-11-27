@@ -9,6 +9,19 @@
 @if (session('clave_generada'))
     <p class="alert alert-warning">Clave de invitación <span class="font-monospace text-break">{{ session('clave_generada') }}</span></p>
 @endif
+<section class="card card-body mb-4">
+    <h2 class="h4">Aforo de caminantes</h2>
+    <form class="row g-3 align-items-end" method="post" action="{{ route('bartimeo.panel.guardar', ['parroquia' => $parroquia, 'edicion' => $retiro->edicion]) }}">
+        @csrf
+        @foreach (['max_ninos' => 'Niños', 'max_ninas' => 'Niñas', 'max_total' => 'Total'] as $campo => $etiqueta)
+            <div class="col-sm">
+                <label class="form-label" for="{{ $campo }}">{{ $etiqueta }}</label>
+                <input class="form-control" type="number" min="0" max="10000" name="{{ $campo }}" id="{{ $campo }}" value="{{ $configuracion->$campo }}" required>
+            </div>
+        @endforeach
+        <div class="col-sm-auto"><button class="btn btn-primary" name="accion" value="aforo">Guardar aforo</button></div>
+    </form>
+</section>
 <section class="mb-4">
     <h2 class="h4">Catálogos</h2>
     @foreach (['talla_caminante' => 'Tallas de caminantes', 'talla_ropa' => 'Tallas de servidores', 'servicio' => 'Servicios'] as $tipo => $titulo)
@@ -23,7 +36,9 @@
                         <label class="form-check-label text-nowrap"><input class="form-check-input" name="filas[{{ $indice }}][activo]" type="checkbox" value="1" @checked($fila->activo)> Activo</label>
                     </div>
                 @endforeach
-                @php($indice = count($catalogos[$tipo]))
+                @php
+                    $indice = count($catalogos[$tipo]);
+                @endphp
                 @if ($indice < 100)
                     <div class="d-flex gap-3 align-items-center mb-3">
                         <input aria-label="Nuevo valor" class="form-control" name="filas[{{ $indice }}][valor]" placeholder="Añadir valor" maxlength="100">
